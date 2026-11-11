@@ -6,7 +6,6 @@ import kotlin.test.assertTrue
 
 class BacktestTest {
 
-    /** Deterministic 200-bar series: flat, then a steady uptrend that must trigger a crossover entry. */
     private fun trendingBars(): List<Bar> {
         val bars = mutableListOf<Bar>()
         var price = 4000.0
@@ -51,14 +50,10 @@ class BacktestTest {
     @Test
     fun positionSizeIsRiskDividedByStopDistance() {
         val size = positionSizeOz(equity = 10_000.0, stopDistance = 10.0, rules = RiskRules())
-        assertEquals(10.0, size, 0.001) // $100 risk / $10 stop = 10 oz
+        assertEquals(10.0, size, 0.001)
     }
 
     companion object {
-        // Cross-check against backtest.py (same rules, same GC=F data) is a
-        // documented manual check, not a unit test: full period 8 trades,
-        // +5.26%, max DD 1.09% — see ~/workspace/apex-build/results/backtest.json.
-        // Wiring the bundled CSV into commonTest resources is T-APX-11.
         val TEST_PROVENANCE = DatasetProvenance(
             source = "test", symbol = "TEST", label = "test",
             fetchedAt = "2026-11-10", barCount = 0,

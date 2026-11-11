@@ -20,15 +20,11 @@ class RangeTest {
         val wickOutside = Bar("t+1", 4000.0, 4003.0, 3999.0, 4000.5)
         assertTrue(isFullCandleInside(band, inside))
         assertFalse(isFullCandleInside(band, wickOutside))
-        assertTrue(isCloseInside(band, wickOutside)) // close inside, wick outside: strict fails, close passes
+        assertTrue(isCloseInside(band, wickOutside))
     }
 
     @Test
     fun measurementCountsOnlyEvaluatedBars() {
-        // 20 bars: ATR(14) is defined only from bar 13, so only bars
-        // 13..18 can be forecast — fewer than the 19 pairs, never more.
-        // (The original 3-bar version could never evaluate: ATR(14)
-        // needs 14 bars. Fixed 2026-11-11 during the overnight run.)
         val bars = (0 until 20).map { i ->
             Bar("t$i", 4000.0 + i, 4002.0 + i, 3998.0 + i, 4000.0 + i)
         }

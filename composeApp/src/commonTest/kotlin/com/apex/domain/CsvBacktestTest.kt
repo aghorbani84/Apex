@@ -7,14 +7,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/**
- * T-APX-11: the bundled CSV is wired into commonTest (embedded string,
- * TestData.kt — generated from data/gc_f_daily.csv, so no hand copying).
- * This test cross-checks the Kotlin engine against backtest.py on the
- * SAME data: full period must be 8 trades, +5.26% ±0.3, max DD 1.09% ±0.3
- * (see ~/workspace/apex-build/results/backtest.json). If it fails, the
- * Kotlin engine drifted from Python — fix the engine, never the numbers.
- */
 class CsvBacktestTest {
 
     @Test

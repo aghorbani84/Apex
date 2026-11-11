@@ -3,20 +3,6 @@ package com.apex.domain
 import kotlin.math.max
 import kotlin.math.pow
 
-/**
- * Backtest engine — mirrors backtest.py exactly (same rules, same cost
- * model) so Kotlin results can be cross-checked against the Python run:
- * SMA(20)/SMA(50) crossover, long-only, 1% risk, stop 2×ATR(14),
- * target 3×ATR(14), 0.05% round-trip cost, next-open execution,
- * no lookahead (signals from close of bar t, executed at open of t+1).
- *
- * Baseline result (Python, GC=F daily 2023-01-03–2026-11-09, 970 bars):
- * full period 8 trades, +5.26%, CAGR 1.34%, max DD 1.09%.
- * In-sample 2023–2024: 5 trades, +0.76%. Out-of-sample 2025–2026: 3 trades,
- * +4.47%. FAILS the R6.2 trade-count minimums (≥30/≥20) and the 20%/month
- * target. The range-filtered strategy (Strategy.kt) is a separate,
- * experimental engine to be measured against the same split.
- */
 data class BacktestResult(
     val trades: List<Trade>,
     val startEquity: Double,
@@ -77,6 +63,9 @@ fun runBaselineBacktest(
                     exitDate = bars[i].date,
                     entry = entry, exit = exitPx, sizeOz = size,
                     pnl = pnl - cost, why = why!!,
+                    side = TradeSide.LONG,
+                    riskDollars = equity * rules.riskPerTradePct,
+                    rMultiple = if (equity * rules.riskPerTradePct > 0) (pnl - cost) / (equity * rules.riskPerTradePct) else 0.0,
                 )
                 open = null
                 peak = max(peak, equity)
@@ -102,6 +91,7 @@ fun runBaselineBacktest(
         peak = max(peak, equity)
         maxDd = max(maxDd, (peak - equity) / peak)
     }
+    // EOD close deducts no cost — matches Python backtest.py eod_close.
     if (open != null) {
         val (entry, _, _, size, entryIdx) = open
         val pnl = (bars.last().close - entry) * size
@@ -111,6 +101,7 @@ fun runBaselineBacktest(
             exitDate = bars.last().date,
             entry = entry, exit = bars.last().close, sizeOz = size,
             pnl = pnl, why = "close_at_end",
+            side = TradeSide.LONG,
         )
     }
     val wins = trades.filter { it.pnl > 0 }

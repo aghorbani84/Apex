@@ -3,13 +3,6 @@ package com.apex.data
 import com.apex.domain.Bar
 import com.apex.domain.DatasetProvenance
 
-/**
- * Parses the bundled GC=F daily CSV (data/gcf-daily.csv, 970 bars,
- * 2023-01-03–2026-11-09, fetched with yfinance 1.8.0). The file is the
- * versioned snapshot; an in-app refresh from the same Yahoo Finance
- * public chart endpoint for the same symbol is a Phase-2 item.
- * Gaps stay gaps — no interpolation, no invented candles.
- */
 fun parseCsvBars(csv: String, provenance: DatasetProvenance): List<Bar> {
     val lines = csv.lines().filter { it.isNotBlank() }
     if (lines.isEmpty()) return emptyList()
@@ -50,8 +43,6 @@ val GC_F_PROVENANCE = DatasetProvenance(
     lastDate = "2026-11-09",
 )
 
-/** 5-minute bars for the R10 range measurement (range_test.py, 2026-11-11).
- * Yahoo intraday covers ~60 days only — this CANNOT test a 5-year claim. */
 val GC_F_5M_PROVENANCE = DatasetProvenance(
     source = "Yahoo Finance, yfinance 1.8.0",
     symbol = "GC=F",
